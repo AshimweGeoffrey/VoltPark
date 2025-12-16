@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## VoltPark — Automated Parking System
 
-## Getting Started
+VoltPark is a Next.js prototype for an automated parking platform with both Admin and Driver experiences. It uses Tailwind (v4) and a simple client-side store backed by `localStorage` so you can click around without a backend.
 
-First, run the development server:
+### Features
+
+- Admin Dashboard: KPIs, recent tickets, quick links.
+- System Configuration: Manage parking zone rules and default fine amounts.
+- User/Role Management: CRUD for Admins, Officers, and Drivers.
+- Analytics: Revenue, violation frequency, and occupancy mock charts.
+- Driver App: Active session tracker with countdown, ticket list with Pay/Appeal, mock payment gateway, and notifications.
+
+### Branding
+
+- Primary colors: `#306844` and `#4779c4`.
+- Place your brand mark at `app/logo.png` (already referenced in the UI). If you prefer the public path, copy it to `public/logo.png` and adjust imports accordingly.
+
+### Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### App routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Landing: `/`
+- Admin: `/admin`
+  - System Configuration: `/admin/config`
+  - Users: `/admin/users`
+  - Analytics: `/admin/analytics`
+- Driver: `/driver`
+  - Session Tracker: `/driver/session`
+  - Tickets: `/driver/tickets`
+  - Payment: `/driver/payment?ticketId=...`
+  - Notifications: `/driver/notifications`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Notes
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Data is stored in the browser only. Clear site data to reset.
+- The payment screen simulates a payment and marks the ticket as paid.
