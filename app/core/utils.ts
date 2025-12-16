@@ -8,6 +8,6 @@ export const minutesUntil = (entryISO: string, paidMinutes: number): number => {
   return diff
 }
 
-export const money = (v: number) => `$${v.toFixed(2)}`
+export const money = (v: number) => `RWF ${v.toLocaleString()}`
 
 export const nowISO = () => new Date().toISOString()

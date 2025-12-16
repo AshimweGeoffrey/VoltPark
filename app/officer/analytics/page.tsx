@@ -5,17 +5,15 @@ export default function OfficerAnalytics() {
   return (
     <Shell
       title="Analytics Overview"
-      toolbar={[
-        'Report Violation',
-        'Vehicle Hold',
-        'Record Offense',
-      ]}
-      actions={[
-        { label: 'Export Report', href: '#' },
-      ]}
+      toolbar={['Report Violation', 'Vehicle Hold', 'Record Offense']}
+      actions={[{ label: 'Export Report', href: '#' }]}
       nav={[
         { label: 'Dashboard', href: '/officer', icon: 'home' },
-        { label: 'Enforcement', href: '/officer/enforcement', icon: 'violation' },
+        {
+          label: 'Enforcement',
+          href: '/officer/enforcement',
+          icon: 'violation',
+        },
         { label: 'Analytics', href: '/officer/analytics', icon: 'analytics' },
         { label: 'Sales & Revenue', href: '/officer/sales', icon: 'payment' },
       ]}
@@ -54,21 +52,21 @@ export default function OfficerAnalytics() {
             <h3 className="text-sm font-medium text-[var(--muted-foreground)]">
               Revenue Today
             </h3>
-            <p className="text-3xl font-bold mt-2">$1,240</p>
+            <p className="text-3xl font-bold mt-2">RWF 1,240,000</p>
             <span className="text-xs text-green-500 font-medium">
               +12% vs average
             </span>
           </div>
         </div>
-        
+
         {/* Placeholder for charts/graphs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <div className="p-6 rounded-xl border border-[var(--border)] bg-card h-64 flex items-center justify-center text-[var(--muted-foreground)]">
-                Occupancy Trend Chart Placeholder
-             </div>
-             <div className="p-6 rounded-xl border border-[var(--border)] bg-card h-64 flex items-center justify-center text-[var(--muted-foreground)]">
-                Violation Types Chart Placeholder
-             </div>
+          <div className="p-6 rounded-xl border border-[var(--border)] bg-card h-64 flex items-center justify-center text-[var(--muted-foreground)]">
+            Occupancy Trend Chart Placeholder
+          </div>
+          <div className="p-6 rounded-xl border border-[var(--border)] bg-card h-64 flex items-center justify-center text-[var(--muted-foreground)]">
+            Violation Types Chart Placeholder
+          </div>
         </div>
       </div>
     </Shell>

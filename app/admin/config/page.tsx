@@ -9,16 +9,16 @@ export default function ConfigPage() {
   const store = useStore()
   const [form, setForm] = useState({
     name: '',
-    ratePerHour: 3,
+    ratePerHour: 500,
     maxHours: 2,
-    fineAmount: 40,
+    fineAmount: 10000,
   })
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name) return
     store.addZone({ ...form })
-    setForm({ name: '', ratePerHour: 3, maxHours: 2, fineAmount: 40 })
+    setForm({ name: '', ratePerHour: 500, maxHours: 2, fineAmount: 10000 })
   }
 
   const onEdit = (z: ParkingZoneRule, patch: Partial<ParkingZoneRule>) =>
@@ -50,8 +50,8 @@ export default function ConfigPage() {
             />
             <Input
               type="number"
-              step="0.1"
-              placeholder="Rate/hr"
+              step="100"
+              placeholder="Rate/hr (RWF)"
               value={form.ratePerHour}
               onChange={(e) =>
                 setForm({ ...form, ratePerHour: Number(e.target.value) })
@@ -68,7 +68,8 @@ export default function ConfigPage() {
             <div className="flex gap-4">
               <Input
                 type="number"
-                placeholder="Fine amount"
+                step="1000"
+                placeholder="Fine amount (RWF)"
                 value={form.fineAmount}
                 onChange={(e) =>
                   setForm({ ...form, fineAmount: Number(e.target.value) })
@@ -80,7 +81,9 @@ export default function ConfigPage() {
         </div>
 
         <div className="rounded-xl bg-[var(--background)] p-8 shadow-sm">
-          <h2 className="mb-6 text-xl font-bold text-[var(--foreground)]">Parking Zones</h2>
+          <h2 className="mb-6 text-xl font-bold text-[var(--foreground)]">
+            Parking Zones
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-base">
               <thead className="text-[var(--muted-foreground)] font-medium">
@@ -155,7 +158,9 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${props.className || ''}`}
+      className={`flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${
+        props.className || ''
+      }`}
     />
   )
 }

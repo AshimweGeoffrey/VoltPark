@@ -165,12 +165,13 @@ export default function SignupPage() {
           <blockquote className="space-y-2">
             <p className="text-lg lg:text-2xl font-medium text-white">
               &ldquo;Joining VoltPark was the best decision for our fleet
-              management. The real-time data is invaluable.&rdquo;
+              management in Rwanda. The real-time data across all districts is
+              invaluable.&rdquo;
             </p>
             <footer className="text-sm lg:text-base text-white/80 font-medium mt-4">
-              Alex Chen <br />
+              Alice Uwase <br />
               <span className="text-white/60 font-normal">
-                Fleet Manager, CityDrive
+                Fleet Manager, Kigali Transport Co.
               </span>
             </footer>
           </blockquote>

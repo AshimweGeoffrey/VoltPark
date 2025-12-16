@@ -68,8 +68,8 @@ export default function Home() {
                     </span>
                   </h1>
                   <p className="max-w-[600px] text-[var(--muted-foreground)] text-xl leading-relaxed">
-                    Manage parking zones, tickets, and revenue with a refined
-                    operator and driver experience.
+                    Manage parking zones, tickets, and revenue across Kigali
+                    with a refined operator and driver experience.
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 min-[400px]:flex-row">
@@ -156,10 +156,10 @@ export default function Home() {
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
-                { label: 'Active Zones', value: '500+' },
-                { label: 'Daily Transactions', value: '12k' },
-                { label: 'Happy Drivers', value: '50k+' },
-                { label: 'Cities', value: '24' },
+                { label: 'Active Zones', value: '50+' },
+                { label: 'Daily Transactions', value: '5k' },
+                { label: 'Happy Drivers', value: '10k+' },
+                { label: 'Districts', value: '3' },
               ].map((stat, i) => (
                 <div
                   key={i}
@@ -202,7 +202,7 @@ export default function Home() {
                 },
                 {
                   title: 'Secure Payments',
-                  desc: 'End-to-end encrypted transaction processing.',
+                  desc: 'End-to-end encrypted processing with MOMO & Airtel Money.',
                   icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
                 },
               ].map((feature, i) => (
@@ -438,7 +438,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-[var(--border)] flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-[var(--muted-foreground)]">
-            <p>© 2024 VoltPark Inc. All rights reserved.</p>
+            <p>© 2024 VoltPark Rwanda Ltd. All rights reserved.</p>
             <div className="flex gap-6">
               <Link
                 href="#"

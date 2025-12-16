@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'VoltPark — Automated Parking System',
-  description: 'Admin & Driver apps for parking zones, tickets, and payments.',
+  title: 'VoltPark Kigali - Automated Parking System',
+  description:
+    'Admin & Driver apps for parking zones, tickets, and payments in Kigali.',
 }
 
 export default function RootLayout({
@@ -29,9 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)]`}
       >
         <StoreProvider>
-          <main className="flex-1 w-full">
-            {children}
-          </main>
+          <main className="flex-1 w-full">{children}</main>
         </StoreProvider>
       </body>
     </html>

@@ -1,29 +1,33 @@
-import Link from 'next/link'
+'use client'
+import Shell from '../../ui/Shell'
 import { Button } from '../../ui/Button'
 import { Input } from '../../ui/Input'
 
 export default function OfficerEnforcement() {
   return (
-    <div className="p-8">
+    <Shell
+      title="Enforcement"
+      toolbar={['Report Violation', 'Vehicle Hold', 'Record Offense']}
+      actions={[]}
+      nav={[
+        { label: 'Dashboard', href: '/officer', icon: 'home' },
+        {
+          label: 'Enforcement',
+          href: '/officer/enforcement',
+          icon: 'violation',
+        },
+        { label: 'Analytics', href: '/officer/analytics', icon: 'analytics' },
+        { label: 'Sales & Revenue', href: '/officer/sales', icon: 'payment' },
+      ]}
+    >
       <div className="max-w-4xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-[var(--foreground)]">
-              Enforcement
-            </h1>
-            <p className="text-[var(--muted-foreground)]">
-              Issue tickets and verify vehicle status.
-            </p>
-          </div>
-        </div>
-
         {/* Lookup Section */}
         <div className="p-6 rounded-xl border border-[var(--border)] bg-card space-y-6">
           <h2 className="text-xl font-semibold">Vehicle Lookup</h2>
           <div className="flex gap-4">
             <div className="flex-1">
               <Input
-                placeholder="Enter License Plate (e.g., ABC-1234)"
+                placeholder="Enter License Plate (e.g., RAA 123 A)"
                 className="h-12 text-lg"
               />
             </div>
@@ -47,24 +51,19 @@ export default function OfficerEnforcement() {
                     Expired Meter
                   </span>
                   <span className="text-sm text-[var(--muted-foreground)]">
-                    Zone A - Spot {100 + i}
+                    Kigali Heights - Spot {100 + i}
                   </span>
                 </div>
-                <h3 className="text-lg font-bold">Toyota Camry - Silver</h3>
-                <p className="font-mono text-[var(--muted-foreground)]">
-                  LPN: XYZ-98{i}
+                <p className="font-medium text-lg">RAA {123 + i} A</p>
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  Reported 5 mins ago
                 </p>
               </div>
-              <Button
-                variant="outline"
-                className="border-red-200 text-red-600 hover:bg-red-50"
-              >
-                Issue Ticket
-              </Button>
+              <Button variant="outline">Process</Button>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </Shell>
   )
 }

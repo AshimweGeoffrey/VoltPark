@@ -95,17 +95,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         const zones: ParkingZoneRule[] = [
           {
             id: uid('zone'),
-            name: 'Downtown A',
-            ratePerHour: 3.5,
+            name: 'Kigali Heights',
+            ratePerHour: 500,
             maxHours: 3,
-            fineAmount: 45,
+            fineAmount: 10000,
           },
           {
             id: uid('zone'),
-            name: 'Waterfront B',
-            ratePerHour: 4.0,
+            name: 'CHIC',
+            ratePerHour: 300,
             maxHours: 2,
-            fineAmount: 60,
+            fineAmount: 15000,
           },
         ]
         const users: User[] = [

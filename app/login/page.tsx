@@ -145,14 +145,14 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-12 lg:p-20">
           <blockquote className="space-y-2">
             <p className="text-lg lg:text-2xl font-medium text-white">
-              &ldquo;VoltPark has completely transformed how we manage our
-              parking infrastructure. The efficiency gains are
+              &ldquo;VoltPark has completely transformed how we manage parking
+              in Kigali. The efficiency gains at CHIC and Kigali Heights are
               remarkable.&rdquo;
             </p>
             <footer className="text-sm lg:text-base text-white/80 font-medium mt-4">
-              Sofia Davis <br />
+              Jean-Claude Mugisha <br />
               <span className="text-white/60 font-normal">
-                Operations Director, MetroPark
+                Operations Director, Kigali City Parking
               </span>
             </footer>
           </blockquote>
