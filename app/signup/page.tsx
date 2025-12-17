@@ -41,21 +41,29 @@ export default function SignupPage() {
 
       if (authData.user) {
         // 2. Create the profile entry
-        // Note: In a production app, this might be handled by a database trigger
-        // but we'll do it explicitly here to ensure the role is set correctly.
-        const { error: profileError } = await supabase.from('profiles').upsert([
-          {
-            id: authData.user.id,
-            full_name: fullName,
-            role: role as 'DRIVER' | 'OFFICER' | 'ADMIN',
-          },
-        ])
+        // Only attempt if we have a session (user is logged in)
+        if (authData.session) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert([
+              {
+                id: authData.user.id,
+                full_name: fullName,
+                role: role as 'DRIVER' | 'OFFICER' | 'ADMIN',
+              },
+            ])
 
-        if (profileError) {
-          console.error('Error creating profile:', profileError)
-          // If profile creation fails, we might want to show an error,
-          // but the auth user is already created.
-          // For now, let's assume it works or the trigger handles it.
+          if (profileError) {
+            console.error(
+              'Error creating profile:',
+              JSON.stringify(profileError, null, 2)
+            )
+            // Continue anyway, auth.tsx will try to create profile on login
+          }
+        } else {
+          console.log(
+            'Signup successful but no session (email confirmation required?). Profile will be created on first login.'
+          )
         }
 
         router.push('/login')

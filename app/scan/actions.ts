@@ -42,8 +42,9 @@ export async function getZones() {
       rate_per_hour: z.ratePerHour.toNumber(),
     }))
   } catch (error: any) {
-    console.error('Failed to fetch zones:', error)
-    throw new Error('Failed to fetch zones')
+    console.error('Failed to fetch zones:', JSON.stringify(error, null, 2))
+    // If it's a connection error, we might want to return an empty list or throw a more specific error
+    throw new Error(`Failed to fetch zones: ${error.message || 'Unknown error'}`)
   }
 }
 
