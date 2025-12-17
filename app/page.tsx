@@ -267,7 +267,7 @@ export default function Home() {
                       variant="ghost"
                       className="text-base font-bold text-[var(--primary)] pl-0 hover:bg-transparent flex items-center gap-2 group-hover:gap-3 transition-all"
                     >
-                      Go to Admin <span className="text-xl">→</span>
+                      Go to Officer <span className="text-xl">→</span>
                     </Button>
                   </Link>
                 </div>
