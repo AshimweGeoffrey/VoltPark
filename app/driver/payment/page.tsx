@@ -35,6 +35,7 @@ export default function PaymentPage() {
         userId: user.id,
         title: 'Payment received',
         message: `Ticket ${ticket.id.slice(-6)} is now paid.`,
+        type: 'PAYMENT',
       })
     }
     router.push('/driver/tickets')

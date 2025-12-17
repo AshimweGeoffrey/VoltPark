@@ -77,6 +77,7 @@ export default function SessionTracker() {
       userId: driver.id,
       title: 'Session started',
       message: `Zone set to ${store.zones.find((z) => z.id === zoneId)?.name}`,
+      type: 'SESSION',
     })
   }
 

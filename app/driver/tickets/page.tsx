@@ -56,7 +56,7 @@ export default function TicketsPage() {
                 </span>
               </div>
               <div className="text-sm text-[var(--muted-foreground)]">
-                {t.reason} • {new Date(t.createdAt).toLocaleDateString()}
+                {t.violationType} • {new Date(t.createdAt).toLocaleDateString()}
               </div>
             </div>
             {t.status === 'PENDING' && (
