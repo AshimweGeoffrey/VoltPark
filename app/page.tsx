@@ -47,10 +47,10 @@ export default function Home() {
               src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop"
               alt="City Background"
               fill
-              className="object-cover opacity-[0.15] animate-in fade-in duration-1000"
+              className="object-cover opacity-40 animate-in fade-in duration-1000"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)]/50 via-[var(--background)]/80 to-[var(--background)]"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)]/30 via-[var(--background)]/70 to-[var(--background)]"></div>
           </div>
 
           <div className="container px-4 md:px-6 mx-auto relative z-10">

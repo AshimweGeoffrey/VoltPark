@@ -36,30 +36,17 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) throw error
 
-      if (session?.user) {
-        // Manually fetch profile to redirect immediately
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-
-        const role = profile?.role || 'DRIVER'
-
-        if (role === 'ADMIN') router.push('/admin')
-        else if (role === 'OFFICER') router.push('/officer')
-        else router.push('/driver')
-      }
+      // Refresh the router to ensure auth state is propagated
+      router.refresh()
+      // No manual redirect here. The useEffect above will handle it
+      // once the global auth state updates.
     } catch (err: any) {
       setError(err.message)
       setLoading(false)
