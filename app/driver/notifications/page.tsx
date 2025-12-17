@@ -1,12 +1,14 @@
 'use client'
 import Shell from '../../ui/Shell'
 import { useStore } from '../../core/store'
+import { useAuth } from '../../core/auth'
 import { Button } from '../../ui/Button'
 
 export default function NotificationsPage() {
   const store = useStore()
-  const driver = store.users.find((u) => u.role === 'DRIVER')
-  const mine = store.notifications.filter((n) => n.driverId === driver?.id)
+  const { user } = useAuth()
+  
+  const mine = store.notifications.filter((n) => n.userId === user?.id)
 
   return (
     <Shell

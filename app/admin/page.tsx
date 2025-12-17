@@ -2,21 +2,33 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Shell from '../ui/Shell'
 import { useStore } from '../core/store'
+import { useAuth } from '../core/auth'
 import { money } from '../core/utils'
 import { Button } from '../ui/Button'
 
 export default function AdminHome() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
   const store = useStore()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
   useEffect(() => {
     store.seed()
   }, [])
 
+  if (loading) return <div className="p-8">Loading...</div>
+  if (!user) return null
+
   const revenue = store.payments.reduce((a, p) => a + p.amount, 0)
-  const openTickets = store.tickets.filter(
-    (t) => t.status === 'PENDING'
-  ).length
+  const openTickets = store.tickets.filter((t) => t.status === 'PENDING').length
   const activeSessions = store.sessions.filter(
     (s) => s.status === 'ACTIVE'
   ).length
@@ -155,7 +167,9 @@ export default function AdminHome() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold">{z.currency} {z.ratePerHour}/hr</p>
+                  <p className="text-sm font-bold">
+                    {z.currency} {z.ratePerHour}/hr
+                  </p>
                   <p className="text-xs text-[var(--muted-foreground)]">
                     Active
                   </p>

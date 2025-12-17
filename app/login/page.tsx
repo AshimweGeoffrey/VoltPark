@@ -1,10 +1,56 @@
+'use client'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import logo from '../logo.png'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../core/auth'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { user, profile, loading: authLoading } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      const role = profile?.role || 'DRIVER'
+      if (role === 'ADMIN') {
+        router.push('/admin')
+      } else if (role === 'OFFICER') {
+        router.push('/officer')
+      } else {
+        router.push('/driver')
+      }
+    }
+  }, [user, profile, authLoading, router])
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      // No manual redirect here. The useEffect above will handle it
+      // once the global auth state updates.
+    } catch (err: any) {
+      setError(err.message)
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[var(--background)]">
       {/* Left Side - Form */}
@@ -32,7 +78,12 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <label
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -47,6 +98,9 @@ export default function LoginPage() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
             <div className="space-y-2">
@@ -64,10 +118,19 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-            <Button className="w-full h-12 text-base shadow-lg shadow-[var(--primary)]/20">
-              Sign In
+            <Button
+              disabled={loading}
+              className="w-full h-12 text-base shadow-lg shadow-[var(--primary)]/20"
+            >
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
 
@@ -86,6 +149,7 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="h-12 border-[var(--border)] hover:bg-[var(--secondary)]"
+              type="button"
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -110,9 +174,10 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="h-12 border-[var(--border)] hover:bg-[var(--secondary)]"
+              type="button"
             >
               <svg
-                className="mr-2 h-4 w-4 text-[var(--foreground)]"
+                className="mr-2 h-4 w-4"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -126,7 +191,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
-              className="underline underline-offset-4 hover:text-[var(--primary)] font-medium"
+              className="underline underline-offset-4 hover:text-[var(--primary)]"
             >
               Sign up
             </Link>
@@ -135,27 +200,17 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Image/Pattern */}
-      <div className="hidden md:block md:w-1/2 lg:w-3/5 relative bg-[var(--muted)]">
-        <Image
-          src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop"
-          alt="City Background"
-          fill
-          className="object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-12 lg:p-20">
-          <blockquote className="space-y-2">
-            <p className="text-lg lg:text-2xl font-medium text-white">
-              &ldquo;VoltPark has completely transformed how we manage parking
-              in Kigali. The efficiency gains at CHIC and Kigali Heights are
-              remarkable.&rdquo;
-            </p>
-            <footer className="text-sm lg:text-base text-white/80 font-medium mt-4">
-              Jean-Claude Mugisha <br />
-              <span className="text-white/60 font-normal">
-                Operations Director, Kigali City Parking
-              </span>
-            </footer>
-          </blockquote>
+      <div className="hidden md:block md:w-1/2 lg:w-[60%] relative bg-[var(--foreground)]">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621929747188-0b4dc28498d2?q=80&w=2572&auto=format&fit=crop')] bg-cover bg-center opacity-50 mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] to-transparent"></div>
+        <div className="absolute bottom-20 left-20 right-20 text-white z-20">
+          <h2 className="text-4xl font-bold mb-6">
+            Smart Parking for Modern Cities
+          </h2>
+          <p className="text-lg text-gray-300 max-w-md">
+            Experience seamless parking management with real-time availability,
+            automated payments, and smart enforcement.
+          </p>
         </div>
       </div>
     </div>

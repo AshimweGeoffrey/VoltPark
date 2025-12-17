@@ -3,7 +3,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import logo from '../logo.png'
-import { usePathname } from 'next/navigation'
+import { useAuth } from '../core/auth'
+import { useStore } from '../core/store'
+import { useRouter, usePathname } from 'next/navigation'
 import { PropsWithChildren } from 'react'
 import { Button } from './Button'
 
@@ -226,6 +228,9 @@ export default function Shell({
   notifications?: NotificationItem[]
   onMarkRead?: (id: string) => void
 }>) {
+  const { signOut, profile } = useAuth()
+  const store = useStore()
+  const router = useRouter()
   const pathname = usePathname()
   const [showNotifications, setShowNotifications] = useState(false)
 
@@ -286,14 +291,27 @@ export default function Shell({
           })}
         </nav>
         <div className="p-6 mt-auto">
-          <Link
-            href="/login"
-            className="flex items-center gap-4 rounded-2xl px-5 py-4 text-lg font-medium text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-all duration-300 mb-4"
+          <button
+            onClick={async () => {
+              await signOut()
+              router.push('/login')
+            }}
+            className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-lg font-medium text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-all duration-300 mb-4"
           >
             <Icon name="logout" />
             <span>Logout</span>
-          </Link>
+          </button>
           <div className="rounded-2xl bg-[var(--secondary)] p-5 border border-[var(--border)]">
+            {profile && (
+              <div className="mb-2">
+                <div className="font-bold text-[var(--foreground)] truncate">
+                  {profile.fullName || 'User'}
+                </div>
+                <div className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider font-medium">
+                  {profile.role}
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-3 mb-2">
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               <div className="text-sm font-bold text-[var(--foreground)]">
@@ -302,6 +320,22 @@ export default function Shell({
             </div>
             <div className="text-xs text-[var(--muted-foreground)]">
               VoltPark v2.1.0
+            </div>
+            {/* Dev Role Switcher */}
+            <div className="mt-2 flex gap-1">
+              {(['ADMIN', 'OFFICER', 'DRIVER'] as const).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => store.switchRole(r)}
+                  className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                    profile?.role === r
+                      ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                      : 'bg-transparent text-[var(--muted-foreground)] border-[var(--border)]'
+                  }`}
+                >
+                  {r[0]}
+                </button>
+              ))}
             </div>
           </div>
         </div>

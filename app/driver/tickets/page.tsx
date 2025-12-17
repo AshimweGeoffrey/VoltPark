@@ -3,109 +3,67 @@ import Link from 'next/link'
 import { useEffect } from 'react'
 import Shell from '../../ui/Shell'
 import { useStore } from '../../core/store'
+import { useAuth } from '../../core/auth'
 import { money } from '../../core/utils'
 import { Button } from '../../ui/Button'
 
 export default function TicketsPage() {
+  const { user } = useAuth()
   const store = useStore()
+
   useEffect(() => {
     store.seed()
   }, [])
 
-  const driver = store.users.find((u) => u.role === 'DRIVER')
-  const mine = store.tickets.filter((t) => t.offenderId === driver?.id)
+  const myVehicles = store.vehicles.filter((v) => v.ownerId === user?.id)
+  const myVehicleIds = myVehicles.map((v) => v.id)
 
-  const ensureSample = () => {
-    if (!driver || mine.length) return
-    const z = store.zones[0]
-    const officer = store.users.find(u => u.role === 'OFFICER')
-    if (!officer) return
-
-    store.issueTicket({
-      offenderId: driver.id,
-      vehicleId: 'veh_diane_1',
-      officerId: officer.id,
-      zoneId: z.id,
-      fineAmount: 10000,
-      violationType: 'Overstayed limit',
-      evidenceImageUrl: null,
-    })
-  }
-  useEffect(() => {
-    ensureSample()
-  }, [driver, mine.length])
-
-  const onAppeal = (id: string) => {
-    const reason = prompt('Appeal reason:')
-    if (reason) store.appealTicket(id, reason)
-  }
-
-  const notifications = store.notifications.filter(
-    (n) => n.userId === driver?.id
+  const mine = store.tickets.filter(
+    (t) => t.vehicleId && myVehicleIds.includes(t.vehicleId)
   )
 
   return (
     <Shell
-      title="Tickets"
-      notifications={notifications}
-      onMarkRead={store.markRead}
+      title="My Tickets"
       nav={[
         { label: 'Home', href: '/driver', icon: 'home' },
         { label: 'Session', href: '/driver/session', icon: 'session' },
         { label: 'Tickets', href: '/driver/tickets', icon: 'tickets' },
       ]}
     >
-      <div className="grid gap-6 sm:max-w-2xl">
+      <div className="space-y-4">
+        {mine.length === 0 && (
+          <div className="text-center py-12 text-[var(--muted-foreground)]">
+            No tickets found. Great job!
+          </div>
+        )}
         {mine.map((t) => (
           <div
             key={t.id}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl bg-[var(--background)] p-6 shadow-sm transition-all hover:shadow-md"
+            className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-card p-6 shadow-sm"
           >
             <div>
-              <div className="text-sm font-medium text-[var(--muted-foreground)]">
-                {new Date(t.createdAt).toLocaleString()}
-              </div>
-              <div className="mt-1 flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-1">
+                <span className="font-bold text-lg">{money(t.fineAmount)}</span>
                 <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
                     t.status === 'PAID'
-                      ? 'bg-green-100 text-green-800'
-                      : t.status === 'APPEALED'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
                   }`}
                 >
                   {t.status}
                 </span>
-                <span className="text-xl font-bold text-[var(--foreground)]">
-                  {money(t.fineAmount)}
-                </span>
               </div>
-              <div className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t.violationType}
+              <div className="text-sm text-[var(--muted-foreground)]">
+                {t.reason} • {new Date(t.createdAt).toLocaleDateString()}
               </div>
             </div>
-            <div className="flex gap-3">
-              {t.status === 'PENDING' && (
-                <Link
-                  href={{
-                    pathname: '/driver/payment',
-                    query: { ticketId: t.id },
-                  }}
-                >
-                  <Button size="sm">Pay Now</Button>
-                </Link>
-              )}
-              {t.status === 'PENDING' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onAppeal(t.id)}
-                >
-                  Appeal
-                </Button>
-              )}
-            </div>
+            {t.status === 'PENDING' && (
+              <Link href={`/driver/payment?ticketId=${t.id}`}>
+                <Button variant="outline">Pay Now</Button>
+              </Link>
+            )}
           </div>
         ))}
       </div>

@@ -2,26 +2,58 @@
 import { useState } from 'react'
 import Shell from '../../ui/Shell'
 import { useStore } from '../../core/store'
-import type { ParkingZoneRule } from '../../core/types'
+import type { ParkingZone } from '../../core/types'
 import { Button } from '../../ui/Button'
+import { Input } from '../../ui/Input'
+import { seedDatabase } from '../../../lib/seed'
+import { useAuth } from '../../core/auth'
+import { useToast } from '../../core/toast'
 
 export default function ConfigPage() {
   const store = useStore()
+  const { user } = useAuth()
+  const toast = useToast()
+  const [seeding, setSeeding] = useState(false)
   const [form, setForm] = useState({
     name: '',
     ratePerHour: 500,
-    maxHours: 2,
-    fineAmount: 10000,
+    currency: 'RWF',
+    location: 'Kigali',
+    isActive: true,
   })
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.name) return
-    store.addZone({ ...form })
-    setForm({ name: '', ratePerHour: 500, maxHours: 2, fineAmount: 10000 })
+  const handleSeed = async () => {
+    if (!user) return
+    if (!confirm('This will add sample data to your database. Continue?'))
+      return
+
+    setSeeding(true)
+    try {
+      await seedDatabase(user.id)
+      toast.success('Database populated successfully!')
+      await store.refresh()
+    } catch (e) {
+      console.error(e)
+      toast.error('Failed to populate database')
+    } finally {
+      setSeeding(false)
+    }
   }
 
-  const onEdit = (z: ParkingZoneRule, patch: Partial<ParkingZoneRule>) =>
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.name) return
+    await store.addZone({ ...form })
+    setForm({
+      name: '',
+      ratePerHour: 500,
+      currency: 'RWF',
+      location: 'Kigali',
+      isActive: true,
+    })
+  }
+
+  const onEdit = (z: ParkingZone, patch: Partial<ParkingZone>) =>
     store.updateZone({ ...z, ...patch })
 
   return (
@@ -58,24 +90,21 @@ export default function ConfigPage() {
               }
             />
             <Input
-              type="number"
-              placeholder="Max hours"
-              value={form.maxHours}
-              onChange={(e) =>
-                setForm({ ...form, maxHours: Number(e.target.value) })
-              }
+              placeholder="Location"
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
             />
             <div className="flex gap-4">
-              <Input
-                type="number"
-                step="1000"
-                placeholder="Fine amount (RWF)"
-                value={form.fineAmount}
-                onChange={(e) =>
-                  setForm({ ...form, fineAmount: Number(e.target.value) })
-                }
-              />
               <Button type="submit">Add</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSeed}
+                disabled={seeding}
+                className="border-dashed border-2"
+              >
+                {seeding ? 'Populating...' : 'Populate Sample Data'}
+              </Button>
             </div>
           </form>
         </div>
@@ -90,8 +119,8 @@ export default function ConfigPage() {
                 <tr>
                   <th className="pb-4 pl-2">Name</th>
                   <th className="pb-4">Rate/hr</th>
-                  <th className="pb-4">Max (h)</th>
-                  <th className="pb-4">Fine</th>
+                  <th className="pb-4">Location</th>
+                  <th className="pb-4">Status</th>
                   <th className="pb-4"></th>
                 </tr>
               </thead>
@@ -100,67 +129,37 @@ export default function ConfigPage() {
                   <tr key={z.id} className="group">
                     <td className="py-4 pl-2 font-medium">{z.name}</td>
                     <td className="py-4">
-                      <Input
-                        type="number"
-                        className="h-9 w-20"
-                        value={z.ratePerHour}
-                        onChange={(e) =>
-                          onEdit(z, { ratePerHour: Number(e.target.value) })
-                        }
-                      />
+                      {z.ratePerHour} {z.currency}
                     </td>
+                    <td className="py-4">{z.location}</td>
                     <td className="py-4">
-                      <Input
-                        type="number"
-                        className="h-9 w-20"
-                        value={z.maxHours}
-                        onChange={(e) =>
-                          onEdit(z, { maxHours: Number(e.target.value) })
-                        }
-                      />
-                    </td>
-                    <td className="py-4">
-                      <Input
-                        type="number"
-                        className="h-9 w-20"
-                        value={z.fineAmount}
-                        onChange={(e) =>
-                          onEdit(z, { fineAmount: Number(e.target.value) })
-                        }
-                      />
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          z.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {z.isActive ? 'Active' : 'Inactive'}
+                      </span>
                     </td>
                     <td className="py-4 text-right">
                       <Button
-                        variant="destructive"
+                        variant="ghost"
                         size="sm"
                         onClick={() => store.removeZone(z.id)}
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
                       >
-                        Remove
+                        Delete
                       </Button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {store.zones.length === 0 && (
-              <div className="py-8 text-center text-[var(--muted-foreground)]">
-                No zones configured. Add one above.
-              </div>
-            )}
           </div>
         </div>
       </div>
     </Shell>
-  )
-}
-
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className={`flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${
-        props.className || ''
-      }`}
-    />
   )
 }

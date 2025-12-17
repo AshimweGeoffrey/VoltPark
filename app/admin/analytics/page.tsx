@@ -14,7 +14,9 @@ export default function AnalyticsPage() {
   const byZone = useMemo(() => {
     const map: Record<string, number> = {}
     store.tickets.forEach((t) => {
-      map[t.zoneId] = (map[t.zoneId] ?? 0) + 1
+      if (t.zoneId) {
+        map[t.zoneId] = (map[t.zoneId] ?? 0) + 1
+      }
     })
     return map
   }, [store.tickets])
@@ -65,7 +67,9 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="rounded-xl bg-[var(--background)] p-8 shadow-sm">
-          <h2 className="mb-6 text-xl font-bold text-[var(--foreground)]">Occupancy Rate</h2>
+          <h2 className="mb-6 text-xl font-bold text-[var(--foreground)]">
+            Occupancy Rate
+          </h2>
           <BarChart
             labels={store.zones.map((z) => z.name)}
             values={store.zones.map((z) => occupancy.map[z.id] ?? 0)}
@@ -81,8 +85,12 @@ export default function AnalyticsPage() {
 function Stat({ title, value }: { title: string; value: string }) {
   return (
     <div className="rounded-xl bg-[var(--background)] p-6 shadow-sm border-l-4 border-[var(--primary)]">
-      <div className="text-sm font-medium text-[var(--muted-foreground)]">{title}</div>
-      <div className="mt-2 text-3xl font-bold text-[var(--foreground)]">{value}</div>
+      <div className="text-sm font-medium text-[var(--muted-foreground)]">
+        {title}
+      </div>
+      <div className="mt-2 text-3xl font-bold text-[var(--foreground)]">
+        {value}
+      </div>
     </div>
   )
 }
@@ -105,8 +113,13 @@ function BarChart({
         const v = values[i] ?? 0
         const pct = Math.round((v / peak) * 100)
         return (
-          <div key={l} className="grid grid-cols-5 items-center gap-4 text-base">
-            <div className="col-span-1 truncate font-medium text-[var(--muted-foreground)]">{l}</div>
+          <div
+            key={`${l}-${i}`}
+            className="grid grid-cols-5 items-center gap-4 text-base"
+          >
+            <div className="col-span-1 truncate font-medium text-[var(--muted-foreground)]">
+              {l}
+            </div>
             <div className="col-span-4 h-4 rounded-full bg-[var(--muted)] overflow-hidden">
               <div
                 className="h-full rounded-full bg-[var(--primary)] transition-all duration-500"
@@ -117,7 +130,9 @@ function BarChart({
         )
       })}
       {labels.length === 0 && (
-        <div className="text-center text-[var(--muted-foreground)]">No data available</div>
+        <div className="text-center text-[var(--muted-foreground)]">
+          No data available
+        </div>
       )}
     </div>
   )

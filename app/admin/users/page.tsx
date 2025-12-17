@@ -1,9 +1,10 @@
 'use client'
 import { useState } from 'react'
 import { useStore } from '../../core/store'
-import type { Role, User } from '../../core/types'
+import type { Role, Profile } from '../../core/types'
 import Shell from '../../ui/Shell'
 import { Button } from '../../ui/Button'
+import { Input } from '../../ui/Input'
 
 const roles: Role[] = ['ADMIN', 'OFFICER', 'DRIVER']
 
@@ -11,19 +12,24 @@ export default function UsersPage() {
   const store = useStore()
   const [form, setForm] = useState<{
     id?: string
-    name: string
-    email: string
+    fullName: string
     role: Role
-  }>({ name: '', email: '', role: 'DRIVER' })
+    balance: number
+  }>({ fullName: '', role: 'DRIVER', balance: 0 })
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.email) return
-    store.upsertUser(form)
-    setForm({ name: '', email: '', role: 'DRIVER' })
+    if (!form.fullName || !form.id) return
+    await store.upsertUser(form)
+    setForm({ fullName: '', role: 'DRIVER', balance: 0 })
   }
 
-  const edit = (u: User) => setForm(u)
+  const edit = (u: Profile) => setForm({
+      id: u.id,
+      fullName: u.fullName || '',
+      role: u.role,
+      balance: u.balance
+  })
 
   return (
     <Shell
@@ -37,20 +43,21 @@ export default function UsersPage() {
     >
       <div className="grid gap-8">
         <div className="rounded-xl bg-[var(--background)] p-8 shadow-sm">
-          <h2 className="mb-6 text-xl font-bold text-[var(--foreground)]">Create / Edit User</h2>
+          <h2 className="mb-6 text-xl font-bold text-[var(--foreground)]">Edit User</h2>
           <form
             onSubmit={submit}
             className="grid grid-cols-1 gap-6 sm:grid-cols-4"
           >
             <Input
               placeholder="Full name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
             />
             <Input
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              type="number"
+              placeholder="Balance"
+              value={form.balance}
+              onChange={(e) => setForm({ ...form, balance: Number(e.target.value) })}
             />
             <div className="relative">
               <select
@@ -66,20 +73,17 @@ export default function UsersPage() {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[var(--muted-foreground)]">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-              </div>
             </div>
             <div className="flex gap-4">
-              <Button type="submit">
-                {form.id ? 'Update' : 'Create'}
+              <Button type="submit" disabled={!form.id}>
+                Update
               </Button>
               {form.id && (
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() =>
-                    setForm({ name: '', email: '', role: 'DRIVER' })
+                    setForm({ fullName: '', role: 'DRIVER', balance: 0 })
                   }
                 >
                   Cancel
@@ -96,28 +100,36 @@ export default function UsersPage() {
               <thead className="text-[var(--muted-foreground)] font-medium">
                 <tr>
                   <th className="pb-4 pl-2">Name</th>
-                  <th className="pb-4">Email</th>
                   <th className="pb-4">Role</th>
+                  <th className="pb-4">Balance</th>
                   <th className="pb-4"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]/30">
                 {store.users.map((u) => (
                   <tr key={u.id} className="group">
-                    <td className="py-4 pl-2 font-medium">{u.name}</td>
-                    <td className="py-4 text-[var(--muted-foreground)]">{u.email}</td>
+                    <td className="py-4 pl-2 font-medium">{u.fullName || 'N/A'}</td>
                     <td className="py-4">
-                      <span className="inline-flex items-center rounded-full bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--primary)]">
+                      <span className="inline-flex items-center rounded-full bg-[var(--secondary)] px-2.5 py-0.5 text-xs font-medium text-[var(--foreground)]">
                         {u.role}
                       </span>
                     </td>
-                    <td className="py-4 text-right">
+                    <td className="py-4">{u.balance}</td>
+                    <td className="py-4 text-right flex gap-2 justify-end">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => edit(u)}
                       >
                         Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => store.deleteUser(u.id)}
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        Delete
                       </Button>
                     </td>
                   </tr>
@@ -128,14 +140,5 @@ export default function UsersPage() {
         </div>
       </div>
     </Shell>
-  )
-}
-
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className={`flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${props.className || ''}`}
-    />
   )
 }

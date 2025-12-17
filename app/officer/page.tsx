@@ -1,8 +1,23 @@
 'use client'
 import Link from 'next/link'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Shell from '../ui/Shell'
+import { useAuth } from '../core/auth'
 
 export default function OfficerDashboard() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
+  if (loading) return <div className="p-8">Loading...</div>
+  if (!user) return null
+
   return (
     <Shell
       title="Officer Dashboard"

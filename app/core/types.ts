@@ -54,21 +54,20 @@ export interface ParkingSession {
 
 export interface Ticket {
   id: string
-  offenderId: string | null
+  sessionId: string | null
   vehicleId: string | null
-  officerId: string
   zoneId: string | null
-  violationType: string
+  issuedBy: string // Officer ID
   fineAmount: number
-  evidenceImageUrl: string | null
+  reason: string
   status: TicketStatus
   createdAt: string
   updatedAt: string
   // Joined fields
-  offender?: Profile
-  officer?: Profile
+  session?: ParkingSession
   vehicle?: Vehicle
   zone?: ParkingZone
+  officer?: Profile
 }
 
 export interface NotificationItem {

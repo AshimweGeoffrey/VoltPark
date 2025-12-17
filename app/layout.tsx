@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { StoreProvider } from './core/store'
+import { AuthProvider } from './core/auth'
+import { ToastProvider } from './core/toast'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,9 +32,13 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)]`}
       >
-        <StoreProvider>
-          <main className="flex-1 w-full">{children}</main>
-        </StoreProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <StoreProvider>
+              <main className="flex-1 w-full">{children}</main>
+            </StoreProvider>
+          </ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   )
