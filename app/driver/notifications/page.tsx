@@ -7,13 +7,12 @@ import { Button } from '../../ui/Button'
 export default function NotificationsPage() {
   const store = useStore()
   const { user } = useAuth()
-  
+
   const mine = store.notifications.filter((n) => n.userId === user?.id)
 
   return (
     <Shell
       title="Notifications"
-      notificationHref="/driver/notifications"
       nav={[
         { label: 'Home', href: '/driver', icon: 'home' },
         { label: 'Session', href: '/driver/session', icon: 'session' },
