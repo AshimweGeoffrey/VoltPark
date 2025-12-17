@@ -31,7 +31,8 @@ export default function OfficerLayout({
         }
       }
     }
-  }, [user, profile, loading, router, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, profile, loading, router])
 
   if (loading) return <Loading />
   if (!user || (profile && profile.role !== 'OFFICER')) return null

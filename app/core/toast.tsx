@@ -1,5 +1,11 @@
 'use client'
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -10,7 +16,6 @@ interface Toast {
 }
 
 interface ToastContextType {
-  toasts: Toast[]
   addToast: (message: string, type: ToastType) => void
   removeToast: (id: string) => void
   success: (message: string) => void
@@ -43,10 +48,13 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const error = useCallback((msg: string) => addToast(msg, 'error'), [addToast])
   const info = useCallback((msg: string) => addToast(msg, 'info'), [addToast])
 
+  const value = useMemo(
+    () => ({ addToast, removeToast, success, error, info }),
+    [addToast, removeToast, success, error, info]
+  )
+
   return (
-    <ToastContext.Provider
-      value={{ toasts, addToast, removeToast, success, error, info }}
-    >
+    <ToastContext.Provider value={value}>
       {children}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
         {toasts.map((t) => (
