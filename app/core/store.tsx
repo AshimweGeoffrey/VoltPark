@@ -73,7 +73,7 @@ type Store = State & {
     zoneId?: string
     issuedBy: string
     fineAmount: number
-    reason: string
+    violationType: string
     status?: TicketStatus
   }): Promise<string | null>
   payTicket(
@@ -182,7 +182,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         zoneId: t.zone_id,
         issuedBy: t.issued_by,
         fineAmount: t.fine_amount,
-        reason: t.violation_type, // Map violation_type to reason
+        violationType: t.violation_type,
         status: t.status,
         createdAt: t.created_at,
         updatedAt: t.updated_at,
@@ -416,7 +416,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
             zone_id: t.zoneId,
             officer_id: t.issuedBy,
             fine_amount: t.fineAmount,
-            violation_type: t.reason,
+            violation_type: t.violationType,
             status: t.status || 'PENDING',
             updated_at: nowISO(),
           })

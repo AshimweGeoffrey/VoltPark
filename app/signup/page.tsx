@@ -195,14 +195,14 @@ export default function SignupPage() {
       </div>
 
       {/* Right Side - Image/Pattern */}
-      <div className="hidden md:block md:w-1/2 lg:w-[60%] relative bg-[var(--foreground)]">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center opacity-50 mix-blend-overlay"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] to-transparent"></div>
+      <div className="hidden md:block md:w-1/2 lg:w-[60%] relative bg-gray-900">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
         <div className="absolute bottom-20 left-20 right-20 text-white z-20">
           <h2 className="text-4xl font-bold mb-6">
             Join the Future of Parking
           </h2>
-          <p className="text-lg text-gray-300 max-w-md">
+          <p className="text-lg text-gray-200 max-w-md">
             Create an account to manage your parking sessions, view tickets, and
             access smart city features.
           </p>

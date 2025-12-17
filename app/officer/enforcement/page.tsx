@@ -38,7 +38,7 @@ export default function OfficerEnforcement() {
       zoneId: searchResult.session?.zoneId,
       issuedBy: user.id,
       fineAmount: 5000,
-      reason: 'Illegal Parking',
+      violationType: 'Illegal Parking',
       status: 'PENDING',
     })
     search()

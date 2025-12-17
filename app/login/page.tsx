@@ -36,15 +36,30 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) throw error
 
-      // No manual redirect here. The useEffect above will handle it
-      // once the global auth state updates.
+      if (session?.user) {
+        // Manually fetch profile to redirect immediately
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+
+        const role = profile?.role || 'DRIVER'
+
+        if (role === 'ADMIN') router.push('/admin')
+        else if (role === 'OFFICER') router.push('/officer')
+        else router.push('/driver')
+      }
     } catch (err: any) {
       setError(err.message)
       setLoading(false)
@@ -200,14 +215,14 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Image/Pattern */}
-      <div className="hidden md:block md:w-1/2 lg:w-[60%] relative bg-[var(--foreground)]">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621929747188-0b4dc28498d2?q=80&w=2572&auto=format&fit=crop')] bg-cover bg-center opacity-50 mix-blend-overlay"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] to-transparent"></div>
+      <div className="hidden md:block md:w-1/2 lg:w-[60%] relative bg-gray-900">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621929747188-0b4dc28498d2?q=80&w=2572&auto=format&fit=crop')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
         <div className="absolute bottom-20 left-20 right-20 text-white z-20">
           <h2 className="text-4xl font-bold mb-6">
             Smart Parking for Modern Cities
           </h2>
-          <p className="text-lg text-gray-300 max-w-md">
+          <p className="text-lg text-gray-200 max-w-md">
             Experience seamless parking management with real-time availability,
             automated payments, and smart enforcement.
           </p>

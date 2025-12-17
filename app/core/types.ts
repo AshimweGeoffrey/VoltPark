@@ -59,7 +59,7 @@ export interface Ticket {
   zoneId: string | null
   issuedBy: string // Officer ID
   fineAmount: number
-  reason: string
+  violationType: string
   status: TicketStatus
   createdAt: string
   updatedAt: string
