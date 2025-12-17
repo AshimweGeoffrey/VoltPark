@@ -73,8 +73,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!mounted) return
 
       // If we are already loading, let the initSession handle it to avoid race conditions
-      // unless it's a SIGNED_OUT event
-      if (loading && event !== 'SIGNED_OUT') return
+      // unless it's a SIGNED_OUT or SIGNED_IN event
+      if (loading && event !== 'SIGNED_OUT' && event !== 'SIGNED_IN') return
+
+      if (event === 'SIGNED_IN') {
+        setLoading(true)
+      }
 
       setSession(session)
       setUser(session?.user ?? null)
@@ -84,6 +88,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // This prevents infinite loops if fetchProfile triggers an update
         if (!profile || profile.id !== session.user.id) {
           await fetchProfile(session.user)
+        } else {
+          setLoading(false)
         }
       } else {
         setProfile(null)
