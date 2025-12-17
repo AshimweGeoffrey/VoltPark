@@ -1,61 +1,82 @@
 export type Role = 'ADMIN' | 'OFFICER' | 'DRIVER'
+export type SessionStatus = 'ACTIVE' | 'COMPLETED' | 'OVERDUE'
+export type TicketStatus = 'PENDING' | 'PAID' | 'APPEALED' | 'DISMISSED'
+export type VehicleType = 'CAR' | 'MOTORCYCLE' | 'TRUCK'
+export type EntryMethod = 'MANUAL' | 'OCR'
 
-export interface ParkingZoneRule {
+export interface Profile {
   id: string
-  name: string
-  ratePerHour: number // dollars
-  maxHours: number
-  fineAmount: number // default fine for violations
-}
-
-export interface User {
-  id: string
-  name: string
-  email: string
+  fullName: string | null
   role: Role
+  balance: number
+  phoneNumber: string | null
+  createdAt: string
+  updatedAt: string
 }
 
-export interface Session {
+export interface Vehicle {
   id: string
-  driverId: string
+  plateNumber: string
+  ownerId: string
+  type: VehicleType
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ParkingZone {
+  id: string
+  name: string
+  ratePerHour: number
+  currency: string
+  location: string | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ParkingSession {
+  id: string
+  vehicleId: string
   zoneId: string
-  vehiclePlate: string
-  entryTime: string // ISO
-  paidMinutes: number // purchased minutes
-  status: 'ACTIVE' | 'EXPIRED' | 'CLOSED'
+  startTime: string
+  endTime: string | null
+  totalCost: number | null
+  status: SessionStatus
+  entryImageUrl: string | null
+  entryMethod: EntryMethod
+  deviceId: string | null
+  createdAt: string
+  updatedAt: string
+  // Joined fields
+  vehicle?: Vehicle
+  zone?: ParkingZone
 }
 
 export interface Ticket {
   id: string
-  sessionId?: string
-  driverId: string
-  zoneId: string
-  issuedAt: string // ISO
-  amount: number
-  status: 'NEW' | 'ISSUED' | 'PAID' | 'APPEALED'
-  notes?: string
-}
-
-export interface Payment {
-  id: string
-  ticketId: string
-  amount: number
-  method: 'CARD' | 'APPLE_PAY' | 'GOOGLE_PAY' | 'BANK'
-  processedAt: string // ISO
+  offenderId: string | null
+  vehicleId: string | null
+  officerId: string
+  zoneId: string | null
+  violationType: string
+  fineAmount: number
+  evidenceImageUrl: string | null
+  status: TicketStatus
+  createdAt: string
+  updatedAt: string
+  // Joined fields
+  offender?: Profile
+  officer?: Profile
+  vehicle?: Vehicle
+  zone?: ParkingZone
 }
 
 export interface NotificationItem {
   id: string
-  driverId: string
-  createdAt: string // ISO
+  userId: string
   title: string
-  body: string
+  message: string
   read: boolean
-}
-
-export interface AnalyticsSnapshot {
-  totalRevenue: number
-  totalTickets: number
-  violationsByZone: Record<string, number>
-  occupancyByZone: Record<string, number> // percentage 0-100
+  type: string | null
+  createdAt: string
 }

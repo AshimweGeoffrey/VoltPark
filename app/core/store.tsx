@@ -7,19 +7,31 @@ import React, {
   useState,
 } from 'react'
 import type {
-  ParkingZoneRule,
-  User,
-  Session,
+  ParkingZone,
+  Profile,
+  ParkingSession,
   Ticket,
-  Payment,
   NotificationItem,
+  Role,
+  SessionStatus,
+  TicketStatus,
+  EntryMethod,
 } from './types'
 import { uid, nowISO } from './utils'
 
+// Temporary Payment type until added to DB schema
+export interface Payment {
+  id: string
+  ticketId: string
+  amount: number
+  method: 'CARD' | 'APPLE_PAY' | 'GOOGLE_PAY' | 'BANK'
+  processedAt: string
+}
+
 type State = {
-  zones: ParkingZoneRule[]
-  users: User[]
-  sessions: Session[]
+  zones: ParkingZone[]
+  users: Profile[]
+  sessions: ParkingSession[]
   tickets: Ticket[]
   payments: Payment[]
   notifications: NotificationItem[]
@@ -27,26 +39,25 @@ type State = {
 
 type Store = State & {
   seed(): void
-  addZone(z: Omit<ParkingZoneRule, 'id'>): void
-  updateZone(z: ParkingZoneRule): void
+  addZone(z: Omit<ParkingZone, 'id' | 'createdAt' | 'updatedAt'>): void
+  updateZone(z: ParkingZone): void
   removeZone(id: string): void
 
   upsertUser(
-    u: Partial<User> & { name: string; email: string; role: User['role'] }
+    u: Partial<Profile> & { fullName: string; role: Role }
   ): void
   deleteUser(id: string): void
 
-  startSession(input: Omit<Session, 'id' | 'status'>): string
+  startSession(input: Omit<ParkingSession, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'startTime' | 'endTime' | 'totalCost'> & { startTime?: string }): string
   closeSession(id: string): void
 
   issueTicket(
-    t: Omit<Ticket, 'id' | 'status' | 'issuedAt'> & {
-      amount: number
-      status?: Ticket['status']
+    t: Omit<Ticket, 'id' | 'status' | 'createdAt' | 'updatedAt'> & {
+      status?: TicketStatus
     }
   ): string
   payTicket(ticketId: string, amount: number, method: Payment['method']): string
-  appealTicket(ticketId: string, notes: string): void
+  appealTicket(ticketId: string, notes: string): void // Notes not in DB schema yet, maybe add to Ticket?
 
   notify(n: Omit<NotificationItem, 'id' | 'createdAt' | 'read'>): void
   markRead(id: string): void
@@ -63,7 +74,7 @@ const defaultState: State = {
 
 const Ctx = createContext<Store | null>(null)
 
-const STORAGE_KEY = 'voltpark_store_v1'
+const STORAGE_KEY = 'voltpark_store_v2'
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -92,40 +103,55 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
       ...state,
       seed() {
         if (state.zones.length) return // idempotent
-        const zones: ParkingZoneRule[] = [
+        const zones: ParkingZone[] = [
           {
             id: uid('zone'),
             name: 'Kigali Heights',
             ratePerHour: 500,
-            maxHours: 3,
-            fineAmount: 10000,
+            currency: 'RWF',
+            location: 'Kigali',
+            isActive: true,
+            createdAt: nowISO(),
+            updatedAt: nowISO(),
           },
           {
             id: uid('zone'),
             name: 'CHIC',
             ratePerHour: 300,
-            maxHours: 2,
-            fineAmount: 15000,
+            currency: 'RWF',
+            location: 'Kigali',
+            isActive: true,
+            createdAt: nowISO(),
+            updatedAt: nowISO(),
           },
         ]
-        const users: User[] = [
+        const users: Profile[] = [
           {
             id: uid('u'),
-            name: 'Alice Admin',
-            email: 'alice@voltpark.io',
+            fullName: 'Alice Admin',
             role: 'ADMIN',
+            balance: 0,
+            phoneNumber: null,
+            createdAt: nowISO(),
+            updatedAt: nowISO(),
           },
           {
             id: uid('u'),
-            name: 'Oscar Officer',
-            email: 'oscar@voltpark.io',
+            fullName: 'Oscar Officer',
             role: 'OFFICER',
+            balance: 0,
+            phoneNumber: null,
+            createdAt: nowISO(),
+            updatedAt: nowISO(),
           },
           {
             id: uid('u'),
-            name: 'Diane Driver',
-            email: 'diane@voltpark.io',
+            fullName: 'Diane Driver',
             role: 'DRIVER',
+            balance: 5000,
+            phoneNumber: '0780000000',
+            createdAt: nowISO(),
+            updatedAt: nowISO(),
           },
         ]
         setState((s) => ({ ...s, zones, users }))
@@ -133,7 +159,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
       addZone(z) {
         setState((s) => ({
           ...s,
-          zones: [...s.zones, { ...z, id: uid('zone') }],
+          zones: [...s.zones, { ...z, id: uid('zone'), createdAt: nowISO(), updatedAt: nowISO() }],
         }))
       },
       updateZone(z) {
@@ -149,18 +175,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         setState((s) => {
           const existing = s.users.find((x) => x.id === u.id)
           if (existing) {
-            const updated: User = { ...existing, ...u } as User
+            const updated: Profile = { ...existing, ...u, updatedAt: nowISO() } as Profile
             return {
               ...s,
               users: s.users.map((x) => (x.id === updated.id ? updated : x)),
             }
           }
-          const created: User = {
+          const created: Profile = {
             id: uid('u'),
-            name: u.name,
-            email: u.email,
+            fullName: u.fullName,
             role: u.role,
-          } as User
+            balance: 0,
+            phoneNumber: null,
+            createdAt: nowISO(),
+            updatedAt: nowISO(),
+            ...u,
+          } as Profile
           return { ...s, users: [...s.users, created] }
         })
       },
@@ -169,7 +199,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
       },
       startSession(input) {
         const id = uid('sess')
-        const session: Session = { id, status: 'ACTIVE', ...input }
+        const session: ParkingSession = {
+          id,
+          status: 'ACTIVE',
+          startTime: input.startTime || nowISO(),
+          endTime: null,
+          totalCost: null,
+          createdAt: nowISO(),
+          updatedAt: nowISO(),
+          ...input,
+        }
         setState((s) => ({ ...s, sessions: [session, ...s.sessions] }))
         return id
       },
@@ -177,7 +216,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         setState((s) => ({
           ...s,
           sessions: s.sessions.map((x) =>
-            x.id === id ? { ...x, status: 'CLOSED' } : x
+            x.id === id ? { ...x, status: 'COMPLETED', endTime: nowISO() } : x
           ),
         }))
       },
@@ -185,8 +224,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         const id = uid('tkt')
         const ticket: Ticket = {
           id,
-          issuedAt: nowISO(),
-          status: t.status ?? 'ISSUED',
+          status: t.status ?? 'PENDING',
+          createdAt: nowISO(),
+          updatedAt: nowISO(),
           ...t,
         } as Ticket
         setState((s) => ({ ...s, tickets: [ticket, ...s.tickets] }))
@@ -214,7 +254,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         setState((s) => ({
           ...s,
           tickets: s.tickets.map((t) =>
-            t.id === ticketId ? { ...t, status: 'APPEALED', notes } : t
+            t.id === ticketId ? { ...t, status: 'APPEALED' } : t
           ),
         }))
       },

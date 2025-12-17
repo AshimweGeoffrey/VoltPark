@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import logo from '../logo.png'
@@ -201,19 +202,32 @@ function Icon({ name }: { name: IconKey }) {
   }
 }
 
+export interface NotificationItem {
+  id: string
+  title: string
+  message: string
+  read: boolean
+  createdAt: string
+}
+
 export default function Shell({
   title,
   actions = [],
   nav = [],
   toolbar = [],
+  notifications,
+  onMarkRead,
   children,
 }: PropsWithChildren<{
   title: string
   actions?: { label: string; href?: string; onClick?: () => void }[]
   nav?: NavItem[]
   toolbar?: string[]
+  notifications?: NotificationItem[]
+  onMarkRead?: (id: string) => void
 }>) {
   const pathname = usePathname()
+  const [showNotifications, setShowNotifications] = useState(false)
 
   const isActive = (href: string) => {
     // If href is exactly the current path, it's active
@@ -307,14 +321,94 @@ export default function Shell({
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 <input
-                  className="h-14 w-full rounded-2xl bg-[var(--background)] pl-14 pr-6 text-lg shadow-sm ring-1 ring-[var(--border)] transition-all placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:shadow-md"
+                  type="text"
                   placeholder="Search..."
+                  className="h-14 w-full rounded-2xl border border-[var(--border)] bg-[var(--background)] pl-14 pr-6 text-lg shadow-sm transition-all focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
                 />
               </div>
+
+              {notifications && (
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full h-14 w-14 text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                  >
+                    <div className="relative">
+                      <Icon name="bell" />
+                      {notifications.some((n) => !n.read) && (
+                        <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500 border-2 border-[var(--background)]"></span>
+                      )}
+                    </div>
+                  </Button>
+
+                  {showNotifications && (
+                    <div className="absolute right-0 mt-4 w-80 sm:w-96 rounded-2xl border border-[var(--border)] bg-[var(--background)] shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                      <div className="p-4 border-b border-[var(--border)] bg-[var(--muted)]/30 flex items-center justify-between">
+                        <h3 className="font-bold text-[var(--foreground)]">
+                          Notifications
+                        </h3>
+                        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+                          {notifications.filter((n) => !n.read).length} unread
+                        </span>
+                      </div>
+                      <div className="max-h-[400px] overflow-y-auto p-2 space-y-2">
+                        {notifications.length === 0 && (
+                          <div className="py-8 text-center text-sm text-[var(--muted-foreground)]">
+                            No notifications
+                          </div>
+                        )}
+                        {notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className={`p-4 rounded-xl transition-colors ${
+                              n.read
+                                ? 'bg-transparent opacity-75'
+                                : 'bg-[var(--primary)]/5'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start gap-3">
+                              <div>
+                                <div className="text-sm font-bold text-[var(--foreground)]">
+                                  {n.title}
+                                </div>
+                                <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                                  {n.message}
+                                </div>
+                                <div className="text-[10px] text-[var(--muted-foreground)]/70 mt-2 uppercase tracking-wider font-medium">
+                                  {new Date(n.createdAt).toLocaleTimeString(
+                                    [],
+                                    {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    }
+                                  )}
+                                </div>
+                              </div>
+                              {!n.read && onMarkRead && (
+                                <button
+                                  onClick={() => onMarkRead(n.id)}
+                                  className="h-2 w-2 rounded-full bg-[var(--primary)] shrink-0 mt-1.5 hover:scale-150 transition-transform"
+                                  title="Mark as read"
+                                />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               {actions.map((a) =>
                 a.href ? (
                   <Link key={a.label} href={a.href}>

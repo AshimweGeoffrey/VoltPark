@@ -65,15 +65,21 @@ export default function DriverHome() {
     store.seed()
   }, [])
 
+  const driver = store.users.find((u) => u.role === 'DRIVER')
+  const notifications = store.notifications.filter(
+    (n) => n.userId === driver?.id
+  )
+
   return (
     <Shell
       title="Welcome Back"
+      notifications={notifications}
+      onMarkRead={store.markRead}
       actions={[{ label: 'Start Session', href: '/driver/session' }]}
       nav={[
         { label: 'Home', href: '/driver', icon: 'home' },
         { label: 'Session', href: '/driver/session', icon: 'session' },
         { label: 'Tickets', href: '/driver/tickets', icon: 'tickets' },
-        { label: 'Notifications', href: '/driver/notifications', icon: 'bell' },
       ]}
     >
       {/* Status Banner */}

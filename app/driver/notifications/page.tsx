@@ -11,11 +11,11 @@ export default function NotificationsPage() {
   return (
     <Shell
       title="Notifications"
+      notificationHref="/driver/notifications"
       nav={[
         { label: 'Home', href: '/driver', icon: 'home' },
         { label: 'Session', href: '/driver/session', icon: 'session' },
         { label: 'Tickets', href: '/driver/tickets', icon: 'tickets' },
-        { label: 'Notifications', href: '/driver/notifications', icon: 'bell' },
       ]}
     >
       <div className="grid gap-4 sm:max-w-md">
@@ -23,12 +23,18 @@ export default function NotificationsPage() {
           <div
             key={n.id}
             className={`flex items-start justify-between gap-4 rounded-xl p-6 shadow-sm transition-all ${
-              n.read ? 'bg-[var(--background)] opacity-75' : 'bg-[var(--background)] ring-1 ring-[var(--primary)]/20'
+              n.read
+                ? 'bg-[var(--background)] opacity-75'
+                : 'bg-[var(--background)] ring-1 ring-[var(--primary)]/20'
             }`}
           >
             <div>
-              <div className="text-base font-bold text-[var(--foreground)]">{n.title}</div>
-              <div className="mt-1 text-sm text-[var(--muted-foreground)]">{n.body}</div>
+              <div className="text-base font-bold text-[var(--foreground)]">
+                {n.title}
+              </div>
+              <div className="mt-1 text-sm text-[var(--muted-foreground)]">
+                {n.message}
+              </div>
               <div className="mt-2 text-xs font-medium text-[var(--muted-foreground)]/70">
                 {new Date(n.createdAt).toLocaleString()}
               </div>

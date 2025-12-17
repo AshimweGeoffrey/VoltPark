@@ -29,29 +29,33 @@ export default function PaymentPage() {
     if (!ticket) return
     // simulate gateway processing delay
     await new Promise((r) => setTimeout(r, 600))
-    store.payTicket(ticket.id, ticket.amount, method)
-    const driverId = ticket.driverId
-    store.notify({
-      driverId,
-      title: 'Payment received',
-      body: `Ticket ${ticket.id.slice(-6)} is now paid.`,
-    })
+    store.payTicket(ticket.id, ticket.fineAmount, method as any)
+    const userId = ticket.offenderId
+    if (userId) {
+      store.notify({
+        userId,
+        title: 'Payment received',
+        message: `Ticket ${ticket.id.slice(-6)} is now paid.`,
+      })
+    }
     router.push('/driver/tickets')
   }
+
+  const driver = store.users.find((u) => u.role === 'DRIVER')
+  const notifications = store.notifications.filter(
+    (n) => n.userId === driver?.id
+  )
 
   if (!ticket)
     return (
       <Shell
         title="Payment"
+        notifications={notifications}
+        onMarkRead={store.markRead}
         nav={[
           { label: 'Home', href: '/driver', icon: 'home' },
           { label: 'Session', href: '/driver/session', icon: 'session' },
           { label: 'Tickets', href: '/driver/tickets', icon: 'tickets' },
-          {
-            label: 'Notifications',
-            href: '/driver/notifications',
-            icon: 'bell',
-          },
         ]}
       >
         <div className="py-12 text-center text-[var(--muted-foreground)]">
@@ -63,11 +67,12 @@ export default function PaymentPage() {
   return (
     <Shell
       title="Payment"
+      notifications={notifications}
+      onMarkRead={store.markRead}
       nav={[
         { label: 'Home', href: '/driver', icon: 'home' },
         { label: 'Session', href: '/driver/session', icon: 'session' },
         { label: 'Tickets', href: '/driver/tickets', icon: 'tickets' },
-        { label: 'Notifications', href: '/driver/notifications', icon: 'bell' },
       ]}
     >
       <div className="rounded-xl bg-[var(--background)] p-8 shadow-sm sm:max-w-md">
@@ -77,7 +82,7 @@ export default function PaymentPage() {
         <div className="mb-6 text-base text-[var(--muted-foreground)]">
           Ticket {ticket.id.slice(-6)} · Amount{' '}
           <span className="font-bold text-[var(--foreground)]">
-            {money(ticket.amount)}
+            {money(ticket.fineAmount)}
           </span>
         </div>
 
@@ -95,7 +100,6 @@ export default function PaymentPage() {
                 <option value="MOMO">MTN Mobile Money</option>
                 <option value="AIRTEL_MONEY">Airtel Money</option>
                 <option value="CARD">Card</option>
-                <option value="BANK">Bank Transfer</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[var(--muted-foreground)]">
                 <svg
@@ -115,59 +119,71 @@ export default function PaymentPage() {
             </div>
           </div>
 
-          {(method === 'MOMO' || method === 'AIRTEL_MONEY') && (
+          {method === 'CARD' ? (
             <div className="grid gap-4">
-              <Input
-                placeholder="Phone number (e.g., 078...)"
-                value={card.number}
-                onChange={(e) => setCard({ ...card, number: e.target.value })}
-              />
-            </div>
-          )}
-
-          {method === 'CARD' && (
-            <div className="grid gap-4">
-              <Input
-                placeholder="Card number"
-                value={card.number}
-                onChange={(e) => setCard({ ...card, number: e.target.value })}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  placeholder="MM/YY"
-                  value={card.exp}
-                  onChange={(e) => setCard({ ...card, exp: e.target.value })}
-                />
-                <Input
-                  placeholder="CVC"
-                  value={card.cvc}
-                  onChange={(e) => setCard({ ...card, cvc: e.target.value })}
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-[var(--foreground)]">
+                  Card Number
+                </label>
+                <input
+                  type="text"
+                  className="flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                  value={card.number}
+                  onChange={(e) =>
+                    setCard({ ...card, number: e.target.value })
+                  }
                 />
               </div>
-              <Input
-                placeholder="Cardholder name"
-                value={card.name}
-                onChange={(e) => setCard({ ...card, name: e.target.value })}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-[var(--foreground)]">
+                    Expiry
+                  </label>
+                  <input
+                    type="text"
+                    className="flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                    value={card.exp}
+                    onChange={(e) =>
+                      setCard({ ...card, exp: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-[var(--foreground)]">
+                    CVC
+                  </label>
+                  <input
+                    type="text"
+                    className="flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                    value={card.cvc}
+                    onChange={(e) =>
+                      setCard({ ...card, cvc: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-[var(--foreground)]">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                className="flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                value={card.number}
+                onChange={(e) =>
+                  setCard({ ...card, number: e.target.value })
+                }
               />
             </div>
           )}
 
-          <Button onClick={payNow} className="w-full mt-2">
-            Pay {money(ticket.amount)}
+          <Button size="lg" onClick={payNow} className="w-full">
+            Pay {money(ticket.fineAmount)}
           </Button>
         </div>
       </div>
     </Shell>
-  )
-}
-
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className={`flex h-12 w-full rounded-lg bg-[var(--background)] px-4 py-2 text-base shadow-sm ring-1 ring-[var(--border)]/50 transition-all placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${
-        props.className || ''
-      }`}
-    />
   )
 }
