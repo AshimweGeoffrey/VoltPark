@@ -33,7 +33,8 @@ export default function DriverLayout({
         }
       }
     }
-  }, [user, profile, loading, router, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, profile, loading, router])
 
   if (loading) return <Loading />
   if (
